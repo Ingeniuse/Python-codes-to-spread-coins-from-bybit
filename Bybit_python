@@ -1,0 +1,52 @@
+import csv
+import requests
+
+# Bybit API endpoint and credentials
+API_KEY = 'your_bybit_api_key'
+API_SECRET = 'your_bybit_api_secret'
+ENDPOINT = 'https://api.bybit.com'
+
+# Function to withdraw cryptocurrency
+def withdraw_crypto(address: str, amount: float, coin: str) -> None:
+    url = f'{ENDPOINT}/user/withdraw'
+    params = {
+        'api_key': API_KEY,
+        'coin': coin,
+        'amount': str(amount),
+        'addr': address
+    }
+    # Add any additional parameters required by the Bybit API
+
+    # Sign the request
+    # Implement the signing logic according to Bybit's API documentation
+
+    # Send the withdrawal request
+    response = requests.post(url, params=params)
+
+    # Handle the response
+    if response.status_code == 200:
+        print(f'Withdrew {amount} {coin} to {address}')
+    else:
+        print(f'Error withdrawing {coin} to {address}: {response.text}')
+
+# Read addresses from CSV file
+addresses = []
+with open('addresses.csv', 'r') as csvfile:
+    csvreader = csv.reader(csvfile)
+    for row in csvreader:
+        addresses.append(row[0])  # Assuming the addresses are in the first column
+
+# Prompt the user for the cryptocurrency and amount to withdraw
+crypto = input("Enter the cryptocurrency to withdraw (e.g., BTC, ETH, USDT): ")
+total_amount = float(input(f"Enter the total {crypto} amount to withdraw (between 0.1 and 20.0): "))
+
+# Validate the amount
+if total_amount < 0.1 or total_amount > 20.0:
+    print("Invalid amount. Please enter a value between 0.1 and 20.0.")
+else:
+    # Calculate the amount to distribute to each address
+    amount_per_address = total_amount / len(addresses)
+
+    # Withdraw cryptocurrency to each address
+    for address in addresses:
+        withdraw_crypto(address, amount_per_address, crypto)
